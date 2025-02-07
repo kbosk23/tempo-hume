@@ -17,18 +17,23 @@ const ChatInterface = ({
   onSendMessage = () => {},
   onStartRecording = () => {},
   onStopRecording = () => {},
-  isRecording = false,
+  isRecording: propIsRecording = false,
   audioLevel = 0,
   transcriptionText = "",
 }: ChatInterfaceProps) => {
+  const [isRecording, setIsRecording] = useState(false);
   const [showTranscription, setShowTranscription] = useState(false);
 
   const handleStartRecording = () => {
+    console.log("Starting recording...");
+    setIsRecording(true);
     setShowTranscription(true);
     onStartRecording();
   };
 
   const handleStopRecording = () => {
+    console.log("Stopping recording...");
+    setIsRecording(false);
     setShowTranscription(false);
     onStopRecording();
   };

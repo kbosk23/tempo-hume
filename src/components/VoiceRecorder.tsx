@@ -40,6 +40,7 @@ const VoiceRecorder = ({
   const animationFrame = useRef<number>();
 
   const startAudioProcessing = async () => {
+    console.log("Starting audio processing...");
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -113,6 +114,7 @@ const VoiceRecorder = ({
   };
 
   useEffect(() => {
+    console.log("Recording state changed:", isRecording);
     if (isRecording) {
       startHumeStream((update) => {
         setCurrentEmotions(update.emotions);

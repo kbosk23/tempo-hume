@@ -1,7 +1,7 @@
 // Initialize WebSocket connection to Hume
 const HUME_API_KEY = import.meta.env.VITE_HUME_API_KEY || "";
 const HUME_CONFIG_ID = import.meta.env.VITE_HUME_CONFIG_ID || "";
-const HUME_WS_URL = `wss://api.hume.ai/v0/stream/models?config=${HUME_CONFIG_ID}`;
+const HUME_WS_URL = `wss://api.hume.ai/v0/stream/models`;
 
 import { EmotionUpdate } from "../types/hume";
 
@@ -30,17 +30,18 @@ export const startHumeStream = async (
 
     await new Promise((resolve, reject) => {
       ws.onopen = () => {
-        if (!HUME_CONFIG_ID) {
-          reject(new Error("Hume Config ID is required"));
-          return;
-        }
+        console.log("WebSocket connected to Hume");
         // Send configuration message
         ws.send(
           JSON.stringify({
             token: HUME_API_KEY,
             models: {
-              prosody: {},
-              language: {},
+              prosody: {
+                identify_speakers: false,
+                granularity: "word",
+                window_sizes: [4],
+                output_features: true,
+              },
             },
             raw_text: true,
           }),
