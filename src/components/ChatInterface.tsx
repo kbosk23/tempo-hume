@@ -1,60 +1,87 @@
 import React, { useState } from "react";
-import MessageList from "./MessageList";
-import VoiceRecorder from "./VoiceRecorder";
-import EmotionDashboard from "./EmotionDashboard";
-import TranscriptionOverlay from "./TranscriptionOverlay";
+import MessageWindow from "./chat/MessageWindow";
+import VoiceActionButton from "./chat/VoiceActionButton";
+import TranscriptionDisplay from "./chat/TranscriptionDisplay";
+import EmotionAnalytics from "./chat/EmotionAnalytics";
 
 interface ChatInterfaceProps {
-  onSendMessage?: (message: string) => void;
-  onStartRecording?: () => void;
-  onStopRecording?: () => void;
-  isRecording?: boolean;
-  audioLevel?: number;
-  transcriptionText?: string;
+  className?: string;
+  onVoiceInput?: (audio: Blob) => Promise<void>;
+  onMessageSend?: (message: string) => Promise<void>;
 }
 
 const ChatInterface = ({
-  onSendMessage = () => {},
-  onStartRecording = () => {},
-  onStopRecording = () => {},
-  isRecording: propIsRecording = false,
-  audioLevel = 0,
-  transcriptionText = "",
+  className = "",
+  onVoiceInput = async () => {},
+  onMessageSend = async () => {},
 }: ChatInterfaceProps) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [showTranscription, setShowTranscription] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [transcription, setTranscription] = useState("");
 
   const handleStartRecording = () => {
-    console.log("Starting recording...");
     setIsRecording(true);
-    setShowTranscription(true);
-    onStartRecording();
+    setTranscription("Listening...");
   };
 
   const handleStopRecording = () => {
-    console.log("Stopping recording...");
     setIsRecording(false);
-    setShowTranscription(false);
-    onStopRecording();
+    setIsProcessing(true);
+    // Simulate processing delay
+    setTimeout(() => {
+      setIsProcessing(false);
+      setTranscription("");
+    }, 2000);
   };
 
   return (
-    <div className="flex w-full h-[800px] bg-gray-50 p-6 gap-6">
-      <div className="flex-1 relative">
-        <MessageList />
-        <VoiceRecorder
-          isRecording={isRecording}
-          audioLevel={audioLevel}
-          onStartRecording={handleStartRecording}
-          onStopRecording={handleStopRecording}
-          className="absolute bottom-8 right-8"
+    <div className={`flex h-screen bg-gray-100 p-6 gap-6 ${className}`}>
+      <div className="flex-1 flex flex-col gap-6">
+        <MessageWindow
+          messages={[
+            {
+              id: "1",
+              text: "Hello! How can I help you today?",
+              sender: "ai",
+              emotion: "happy",
+              timestamp: new Date(),
+            },
+            {
+              id: "2",
+              text: "I have a question about my account.",
+              sender: "user",
+              emotion: "neutral",
+              timestamp: new Date(),
+            },
+          ]}
+          className="flex-1"
         />
-        <TranscriptionOverlay
-          isVisible={showTranscription}
-          text={transcriptionText}
-        />
+
+        <div className="flex justify-center items-center h-24 relative">
+          <VoiceActionButton
+            isRecording={isRecording}
+            isProcessing={isProcessing}
+            onStartRecording={handleStartRecording}
+            onStopRecording={handleStopRecording}
+          />
+
+          <TranscriptionDisplay
+            text={transcription}
+            isVisible={isRecording || isProcessing}
+          />
+        </div>
       </div>
-      <EmotionDashboard />
+
+      <EmotionAnalytics
+        emotions={[
+          { emotion: "Happy", intensity: 75, confidence: 0.85 },
+          { emotion: "Neutral", intensity: 45, confidence: 0.65 },
+          { emotion: "Excited", intensity: 60, confidence: 0.75 },
+          { emotion: "Calm", intensity: 30, confidence: 0.55 },
+        ]}
+        currentEmotion="Happy"
+        speakerName="Current Speaker"
+      />
     </div>
   );
 };
